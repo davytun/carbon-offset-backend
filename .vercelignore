@@ -1,0 +1,8 @@
+node_modules
+.env
+logs
+tests
+*.test.js
+README.md
+docker-compose.yml
+Dockerfile
