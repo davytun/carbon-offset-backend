@@ -6,10 +6,14 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 
 
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const User = require('./models/User');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
+
+// Enable buffering for serverless
+mongoose.set('bufferCommands', true);
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -39,12 +43,31 @@ app.use(express.urlencoded({ extended: true }));
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Carbon Offset Tracker API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      docs: '/api-docs',
+      auth: '/api/auth',
+      emissions: '/api/emissions',
+      offsets: '/api/offsets',
+      transactions: '/api/transactions',
+      leaderboards: '/api/leaderboards'
+    }
+  });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    mongoUri: process.env.MONGO_URI ? 'Set' : 'Not Set',
+    nodeEnv: process.env.NODE_ENV
   });
 });
 
@@ -59,12 +82,18 @@ app.use('/api/leaderboards', leaderboardRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+const PORT = process.env.PORT || 5000;
+
+const server = app.listen(PORT, () => {
+  logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received');
+  server.close(() => {
+    logger.info('Process terminated');
   });
-}
+});
 
 module.exports = app;

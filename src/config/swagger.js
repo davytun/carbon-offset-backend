@@ -1,20 +1,18 @@
-const swaggerJsdoc = require('swagger-jsdoc');
-
-const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Carbon Offset Tracker API',
-      version: '1.0.0',
-      description: 'API for tracking carbon emissions and purchasing tokenized carbon credits on Hedera blockchain',
+const swaggerSpec = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Carbon Offset Tracker API',
+    version: '1.0.0',
+    description: 'API for tracking carbon emissions and purchasing tokenized carbon credits on Hedera blockchain',
+  },
+  servers: [
+    {
+      url: process.env.NODE_ENV === 'production' ? 'https://your-render-app.onrender.com' : 'http://localhost:5000',
+      description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
     },
-    servers: [
-      {
-        url: process.env.NODE_ENV === 'production' ? 'https://your-domain.com' : 'http://localhost:5000',
-        description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
-      },
-    ],
-    components: {
+  ],
+  paths: {},
+  components: {
       securitySchemes: {
         bearerAuth: {
           type: 'http',
@@ -81,8 +79,7 @@ const options = {
         }
       }
     }
-  },
-  apis: ['./src/routes/*.js'],
+  }
 };
 
-module.exports = swaggerJsdoc(options);
+module.exports = swaggerSpec;

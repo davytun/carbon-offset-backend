@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: carbon-offset-api
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HEDERA_OPERATOR_ID
+        sync: false
+      - key: HEDERA_OPERATOR_PRIVATE_KEY
+        sync: false
+      - key: HCS_TOPIC_ID
+        sync: false
+      - key: OFFSET_TOKEN_ID
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
