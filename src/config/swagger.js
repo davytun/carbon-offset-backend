@@ -344,6 +344,138 @@ const swaggerSpec = {
         }
       }
     },
+    '/api/offsets/balance': {
+      get: {
+        summary: 'Get user token balances',
+        tags: ['Offsets'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Token balances retrieved',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        accountId: { type: 'string' },
+                        hbarBalance: { type: 'string' },
+                        tokenBalances: { type: 'object' },
+                        carbonOffsetTokens: { type: 'number' }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/emissions/categories': {
+      get: {
+        summary: 'Get supported emission categories',
+        tags: ['Emissions'],
+        responses: {
+          200: {
+            description: 'Emission categories retrieved',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: { type: 'object' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/transactions/dashboard': {
+      get: {
+        summary: 'Get dashboard statistics',
+        tags: ['Transactions'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Dashboard stats retrieved',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        summary: {
+                          type: 'object',
+                          properties: {
+                            totalEmissions: { type: 'number' },
+                            totalOffsets: { type: 'number' },
+                            netEmissions: { type: 'number' },
+                            offsetPercentage: { type: 'number' }
+                          }
+                        },
+                        recentActivity: { type: 'object' }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+                properties: {
+                  userHederaAddress: { type: 'string', pattern: '^0\\.0\\.\\d+$' },
+                  projectId: { type: 'string' },
+                  quantity: { type: 'integer', minimum: 1 },
+                  totalCo2eKg: { type: 'number', minimum: 0 },
+                  totalHbarCost: { type: 'number', minimum: 0 }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          201: {
+            description: 'Offset purchased successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        offset: { type: 'object' },
+                        blockchain: {
+                          type: 'object',
+                          properties: {
+                            hbarTransactionId: { type: 'string' },
+                            tokenMintTransactionId: { type: 'string' },
+                            tokenId: { type: 'string' }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     '/api/transactions/dashboard': {
       get: {
         summary: 'Get dashboard statistics',
