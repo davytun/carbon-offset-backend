@@ -139,6 +139,239 @@ const swaggerSpec = {
           }
         }
       }
+    },
+    '/api/auth/login': {
+      post: {
+        summary: 'User login',
+        tags: ['Authentication'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['email', 'password'],
+                properties: {
+                  email: { type: 'string', format: 'email' },
+                  password: { type: 'string' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: 'Login successful',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    token: { type: 'string' },
+                    user: { $ref: '#/components/schemas/User' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/auth/profile': {
+      get: {
+        summary: 'Get user profile',
+        tags: ['Authentication'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'User profile retrieved',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    user: { $ref: '#/components/schemas/User' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/emissions/log': {
+      post: {
+        summary: 'Log carbon emission',
+        tags: ['Emissions'],
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['emissionType', 'category', 'amount', 'unit'],
+                properties: {
+                  emissionType: { type: 'string', enum: ['travel', 'energy', 'food', 'other'] },
+                  category: { type: 'string' },
+                  amount: { type: 'number', minimum: 0 },
+                  unit: { type: 'string' },
+                  description: { type: 'string' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          201: {
+            description: 'Emission logged successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        emission: { $ref: '#/components/schemas/Emission' },
+                        blockchain: {
+                          type: 'object',
+                          properties: {
+                            transactionId: { type: 'string' },
+                            consensusTimestamp: { type: 'string' },
+                            topicId: { type: 'string' }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/emissions/history': {
+      get: {
+        summary: 'Get emission history',
+        tags: ['Emissions'],
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { in: 'query', name: 'page', schema: { type: 'integer', default: 1 } },
+          { in: 'query', name: 'limit', schema: { type: 'integer', default: 20 } },
+          { in: 'query', name: 'emissionType', schema: { type: 'string' } }
+        ],
+        responses: {
+          200: {
+            description: 'Emission history retrieved',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        emissions: { type: 'array', items: { $ref: '#/components/schemas/Emission' } },
+                        pagination: { type: 'object' },
+                        summary: { type: 'object' }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/offsets/purchase': {
+      post: {
+        summary: 'Purchase carbon credits',
+        tags: ['Offsets'],
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['userHederaAddress', 'projectId', 'quantity', 'totalCo2eKg', 'totalHbarCost'],
+                properties: {
+                  userHederaAddress: { type: 'string', pattern: '^0\\.0\\.\\d+$' },
+                  projectId: { type: 'string' },
+                  quantity: { type: 'integer', minimum: 1 },
+                  totalCo2eKg: { type: 'number', minimum: 0 },
+                  totalHbarCost: { type: 'number', minimum: 0 }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          201: {
+            description: 'Offset purchased successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        offset: { type: 'object' },
+                        blockchain: {
+                          type: 'object',
+                          properties: {
+                            hbarTransactionId: { type: 'string' },
+                            tokenMintTransactionId: { type: 'string' },
+                            tokenId: { type: 'string' }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/transactions/dashboard': {
+      get: {
+        summary: 'Get dashboard statistics',
+        tags: ['Transactions'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Dashboard stats retrieved',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        summary: { type: 'object' },
+                        recentActivity: { type: 'object' }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   components: {
