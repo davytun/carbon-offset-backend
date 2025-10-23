@@ -12,7 +12,6 @@ const connectDB = async () => {
     }
 
     mongoose.set('bufferCommands', true);
-    mongoose.set('bufferMaxEntries', 0);
     
     const conn = await mongoose.connect(process.env.MONGO_URI);
     logger.info(`MongoDB Connected: ${conn.connection.host}`);
