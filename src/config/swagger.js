@@ -79,7 +79,6 @@ const swaggerSpec = {
         }
       }
     }
-  }
 };
 
 module.exports = swaggerSpec;
