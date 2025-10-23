@@ -7,11 +7,140 @@ const swaggerSpec = {
   },
   servers: [
     {
-      url: process.env.NODE_ENV === 'production' ? 'https://your-render-app.onrender.com' : 'http://localhost:5000',
+      url: process.env.NODE_ENV === 'production' ? 'https://carbon-offset-backend.onrender.com' : 'http://localhost:5000',
       description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
     },
   ],
-  paths: {},
+  paths: {
+    '/': {
+      get: {
+        summary: 'API Overview',
+        tags: ['General'],
+        responses: {
+          200: {
+            description: 'API information and available endpoints',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string' },
+                    version: { type: 'string' },
+                    endpoints: { type: 'object' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/health': {
+      get: {
+        summary: 'Health Check',
+        tags: ['General'],
+        responses: {
+          200: {
+            description: 'Service health status',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    status: { type: 'string' },
+                    timestamp: { type: 'string' },
+                    uptime: { type: 'number' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/offsets/marketplace': {
+      get: {
+        summary: 'Browse carbon offset projects',
+        tags: ['Offsets'],
+        parameters: [
+          {
+            in: 'query',
+            name: 'page',
+            schema: { type: 'integer', default: 1 }
+          },
+          {
+            in: 'query',
+            name: 'limit',
+            schema: { type: 'integer', default: 20 }
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Projects retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        projects: {
+                          type: 'array',
+                          items: { $ref: '#/components/schemas/Project' }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/auth/register': {
+      post: {
+        summary: 'Register a new user',
+        tags: ['Authentication'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['email', 'password'],
+                properties: {
+                  email: { type: 'string', format: 'email' },
+                  password: { type: 'string', minLength: 8 },
+                  firstName: { type: 'string' },
+                  lastName: { type: 'string' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          201: {
+            description: 'User registered successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    token: { type: 'string' },
+                    user: { $ref: '#/components/schemas/User' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   components: {
       securitySchemes: {
         bearerAuth: {
